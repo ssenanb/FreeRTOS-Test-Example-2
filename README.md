@@ -15,9 +15,9 @@ Sistem Görevi: Gelen verileri yorumlayarak LED kontrolü ve UART üzerinden mes
 
 | Görev Adı     | Öncelik      | İşlev                                                                 | Periyot  |
 |---------------|--------------|-----------------------------------------------------------------------|----------|
-| IR_Task       | Above Normal | ADC üzerinden IR sensör verisini okur ve global değişkende saklar   | 100 ms   |
-| DHT11_Task    | Below Normal | DHT11 üzerinden sıcaklık ve nem verilerini okur                      | 2000 ms  |
-| System_Task   | Normal       | LED’i kontrol eder ve sıcaklık verisine göre UART mesajı gönderir    | 50 ms    |
+| IR_Task       | Above Normal | ADC üzerinden IR sensör verisini okur ve global değişkende saklar     | 100 ms   |
+| DHT11_Task    | Below Normal | DHT11 üzerinden sıcaklık ve nem verilerini okur                       | 2000 ms  |
+| System_Task   | Normal       | LED’i kontrol eder ve sıcaklık verisine göre UART mesajı gönderir     | 50 ms    |
     
 
 # Notlar
