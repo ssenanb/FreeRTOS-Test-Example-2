@@ -1,60 +1,21 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2025 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
-
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
 #include "DHT.h"
 #include "string.h"
 #include "stdio.h"
-/* USER CODE END Includes */
 
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
 
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc;
 
 UART_HandleTypeDef huart1;
 
-/* Definitions for IR_Task */
 osThreadId_t IR_TaskHandle;
 const osThreadAttr_t IR_Task_attributes = {
   .name = "IR_Task",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for DHT11_Task */
+
 osThreadId_t DHT11_TaskHandle;
 const osThreadAttr_t DHT11_Task_attributes = {
   .name = "DHT11_Task",
@@ -68,27 +29,19 @@ const osThreadAttr_t System_Task_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* USER CODE BEGIN PV */
+
 uint16_t IR_data;
 DHT_data data;
 DHT_sensor sensor;
 
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_ADC_Init(void);
 static void MX_USART1_UART_Init(void);
 void StartIR_Task(void *argument);
 void StartDHT11_Task(void *argument);
-
-/* USER CODE BEGIN PFP */
 void StartSystem_Task(void *argument);
-/* USER CODE END PFP */
 
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
 uint16_t readIR() {
 	HAL_ADC_Start(&hadc);
 	HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
@@ -99,105 +52,38 @@ void sendUART(){
 	uint8_t message[] = "Temperature is raise.\r\n";
 	HAL_UART_Transmit(&huart1, message, strlen(message), HAL_MAX_DELAY);
 }
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
 int main(void)
 {
-
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
   SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_ADC_Init();
   MX_USART1_UART_Init();
-  /* USER CODE BEGIN 2 */
 
   sensor.DHT_Port = GPIOB;
   sensor.DHT_Pin = GPIO_PIN_14;
   sensor.type = DHT11;
   sensor.pullUp = GPIO_NOPULL;
-  /* USER CODE END 2 */
 
-  /* Init scheduler */
   osKernelInitialize();
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
-
-  /* USER CODE BEGIN RTOS_SEMAPHORES */
-  /* add semaphores, ... */
-  /* USER CODE END RTOS_SEMAPHORES */
-
-  /* USER CODE BEGIN RTOS_TIMERS */
-  /* start timers, add new ones, ... */
-  /* USER CODE END RTOS_TIMERS */
-
-  /* USER CODE BEGIN RTOS_QUEUES */
-  /* add queues, ... */
-  /* USER CODE END RTOS_QUEUES */
-
-  /* Create the thread(s) */
-  /* creation of IR_Task */
+	
   IR_TaskHandle = osThreadNew(StartIR_Task, NULL, &IR_Task_attributes);
 
-  /* creation of DHT11_Task */
   DHT11_TaskHandle = osThreadNew(StartDHT11_Task, NULL, &DHT11_Task_attributes);
 
-  /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
   System_TaskHandle = osThreadNew(StartSystem_Task, NULL, &System_Task_attributes);
 
-  /* USER CODE END RTOS_THREADS */
-
-  /* USER CODE BEGIN RTOS_EVENTS */
-  /* add events, ... */
-  /* USER CODE END RTOS_EVENTS */
-
-  /* Start scheduler */
   osKernelStart();
-
-  /* We should never get here as control is now taken by the scheduler */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-
-
   }
-  /* USER CODE END 3 */
 }
 
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -356,70 +242,38 @@ static void MX_GPIO_Init(void)
 }
 
   void StartSystem_Task(void *argument){
-	  while(1){
+	while(1){
 	  if( IR_data > 1000)
-	 		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
-	 	  else
-	 		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
+	   else
+	 	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
 
-
-	 	  if(data.temp > 30)
-	 		  sendUART();
-
-	 	 osDelay(50);
+	  if(data.temp > 30)
+	 	  sendUART();
+	 osDelay(50);
    }
 }
 
-/* USER CODE BEGIN 4 */
-
-/* USER CODE END 4 */
-
-/* USER CODE BEGIN Header_StartIR_Task */
-/**
-  * @brief  Function implementing the IR_Task thread.
-  * @param  argument: Not used
-  * @retval None
-  */
-/* USER CODE END Header_StartIR_Task */
 void StartIR_Task(void *argument)
 {
-  /* USER CODE BEGIN 5 */
-  /* Infinite loop */
-	uint32_t PreviosWakeTime = osKernelGetTickCount();
-
-	while(1){
-		IR_data = readIR();
-		PreviosWakeTime += 2000;
-		osDelayUntil(PreviosWakeTime);
-
-		char dhtBuf[64];
-		sprintf(dhtBuf, " IR Task: ir=%d, tick=%lu\r\n", IR_data, osKernelGetTickCount());
-		HAL_UART_Transmit(&huart1, (uint8_t*)dhtBuf, strlen(dhtBuf), HAL_MAX_DELAY);
-	}
-  /* USER CODE END 5 */
+  uint32_t PreviosWakeTime = osKernelGetTickCount();
+	
+   while(1){
+	IR_data = readIR();
+	PreviosWakeTime += 2000;
+	osDelayUntil(PreviosWakeTime);
+  }
 }
 
-/* USER CODE BEGIN Header_StartDHT11_Task */
-/**
-* @brief Function implementing the DHT11_Task thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartDHT11_Task */
 void StartDHT11_Task(void *argument)
 {
-  /* USER CODE BEGIN StartDHT11_Task */
-  /* Infinite loop */
-	uint32_t PreviosWakeTime = osKernelGetTickCount();
+   uint32_t PreviosWakeTime = osKernelGetTickCount();
 
-		while(1){
-			data = DHT_getData(&sensor);
-			PreviosWakeTime += 2000;
-			osDelayUntil(PreviosWakeTime);
-
-
-		}
-  /* USER CODE END StartDHT11_Task */
+   while(1){
+	data = DHT_getData(&sensor);
+	PreviosWakeTime += 2000;	
+	osDelayUntil(PreviosWakeTime);
+  }
 }
 
 /**
