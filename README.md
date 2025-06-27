@@ -13,13 +13,12 @@ Sistem Görevi: Gelen verileri yorumlayarak LED kontrolü ve UART üzerinden mes
 
 # RTOS Görev Yapısı
 
-| Görev Adı     | Öncelik      | İşlev                                   | Periyot |
-|---------------|--------------|-----------------------------------------|---------|
-| IR_Task       | Above Normal |ADC üzerinden IR sensör verisini okur ve | 100 ms  |
-                                global değişkende saklar                          
-| DHT11_Task    | Below Normal | DHT11 üzerinden sıcaklık verisini okur  | 2000 ms |
-| System_Task   | Normal       | LED’i kontrol eder ve sıcaklığa göre    | 50 ms   |
-                                UART mesajı gönderir                              
+| Görev Adı     | Öncelik      | İşlev                                                                 | Periyot  |
+|---------------|--------------|-----------------------------------------------------------------------|----------|
+| IR_Task       | Above Normal | ADC üzerinden IR sensör verisini okur ve global değişkende saklar   | 100 ms   |
+| DHT11_Task    | Below Normal | DHT11 üzerinden sıcaklık ve nem verilerini okur                      | 2000 ms  |
+| System_Task   | Normal       | LED’i kontrol eder ve sıcaklık verisine göre UART mesajı gönderir    | 50 ms    |
+    
 
 # Notlar
 Bu proje, öğrenme ve deneme amaçlı yazılmıştır. Gerçek uygulamalar için watchdog, error handling ve bellek optimizasyonu gibi ek güvenlik önlemleri gereklidir.
